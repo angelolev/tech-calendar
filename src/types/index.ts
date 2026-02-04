@@ -1,8 +1,7 @@
 export interface Registry {
   id: string;
   name: string;
-  link: string;
-  whatsapp: string;
+  link?: string;
   date: Date;
 }
 
@@ -12,4 +11,5 @@ export interface DayCardProps {
   registries: Registry[];
   onDayClick: (date: Date) => void;
   onRegistryClick?: (registry: Registry) => void;
+  animationDelay?: number;
 }

@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Registry } from "../../types";
+import { DatePicker, formatDateToISOLocal } from "../DatePicker";
+
+// Helper to parse ISO date in local timezone
+const parseISODateLocal = (isoString: string): Date => {
+  const [year, month, day] = isoString.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
 
 interface RegistryModalProps {
   selectedDate: Date;
@@ -16,39 +23,89 @@ export function RegistryModal({
   const [eventName, setEventName] = useState("");
   const [eventLink, setEventLink] = useState("");
   const [eventDate, setEventDate] = useState(
-    selectedDate.toISOString().split("T")[0]
+    formatDateToISOLocal(selectedDate)
   );
-  const [eventGroupLink, setEventGroupLink] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 300);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     onSave({
       name: eventName,
-      link: eventLink,
-      whatsapp: eventGroupLink,
-      date: new Date(eventDate),
+      link: eventLink || undefined,
+      date: parseISODateLocal(eventDate),
     });
-    onClose();
+    handleClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
-      <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md relative border border-gray-700 shadow-lg">
+    <div
+      className="fixed inset-0 flex items-center justify-center p-4 z-50"
+      style={{
+        background: "rgba(0, 0, 0, 0.7)",
+        backdropFilter: "blur(8px)",
+        opacity: isVisible ? 1 : 0,
+        transition: "all 0.3s ease-out",
+      }}
+      onClick={handleClose}
+    >
+      <div
+        className="w-full max-w-md relative"
+        style={{
+          background: "rgba(42, 49, 66, 0.95)",
+          borderRadius: "28px",
+          padding: "32px",
+          boxShadow: "var(--shadow-lg)",
+          border: "1px solid rgba(67, 78, 120, 0.4)",
+          transform: isVisible ? "scale(1) translateY(0)" : "scale(0.9) translateY(20px)",
+          transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
-          onClick={onClose}
-          className="absolute right-4 top-4 text-gray-400 hover:text-gray-200 cursor-pointer"
+          onClick={handleClose}
+          className="absolute right-6 top-6 p-2 rounded-full transition-all duration-300"
+          style={{
+            color: "var(--color-text-primary)",
+            background: "var(--color-lavender-soft)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "rotate(90deg) scale(1.1)";
+            e.currentTarget.style.background = "var(--color-lavender)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "rotate(0deg) scale(1)";
+            e.currentTarget.style.background = "var(--color-lavender-soft)";
+          }}
         >
-          <X size={20} />
+          <X size={18} />
         </button>
-        <h2 className="text-xl font-semibold mb-4 text-gray-200">
+
+        <h2
+          className="text-2xl font-light mb-6"
+          style={{
+            color: "var(--color-text-primary)",
+            fontFamily: "'Source Serif 4', Georgia, serif",
+          }}
+        >
           Agregar Evento
         </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
             <label
               htmlFor="eventName"
-              className="block text-sm font-medium text-gray-300"
+              className="block text-xs uppercase tracking-wider mb-2"
+              style={{ color: "var(--color-text-secondary)" }}
             >
               Nombre del evento
             </label>
@@ -57,68 +114,97 @@ export function RegistryModal({
               id="eventName"
               value={eventName}
               onChange={(e) => setEventName(e.target.value)}
-              className="py-1 px-2 mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-200 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+              className="w-full px-4 py-3 rounded-2xl transition-all duration-300 focus:outline-none"
+              style={{
+                background: "var(--color-lavender-soft)",
+                color: "var(--color-text-primary)",
+                border: "1px solid rgba(67, 78, 120, 0.3)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.border = "1px solid var(--color-text-secondary)";
+                e.currentTarget.style.boxShadow = "var(--shadow-glow)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.border = "1px solid rgba(139, 126, 158, 0.2)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
               required
             />
           </div>
-          <div className="mb-4">
+
+          <div>
             <label
               htmlFor="eventLink"
-              className="block text-sm font-medium text-gray-300"
+              className="block text-xs uppercase tracking-wider mb-2"
+              style={{ color: "var(--color-text-secondary)" }}
             >
-              Link del evento
+              Link del evento (opcional)
             </label>
             <input
               type="url"
               id="eventLink"
               value={eventLink}
               onChange={(e) => setEventLink(e.target.value)}
-              className="py-1 px-2 mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-200 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              required
+              className="w-full px-4 py-3 rounded-2xl transition-all duration-300 focus:outline-none"
+              style={{
+                background: "var(--color-lavender-soft)",
+                color: "var(--color-text-primary)",
+                border: "1px solid rgba(67, 78, 120, 0.3)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.border = "1px solid var(--color-text-secondary)";
+                e.currentTarget.style.boxShadow = "var(--shadow-glow)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.border = "1px solid rgba(139, 126, 158, 0.2)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
-          <div className="mb-4">
-            <label
-              htmlFor="eventDate"
-              className="block text-sm font-medium text-gray-300"
-            >
-              Fecha del evento
-            </label>
-            <input
-              type="date"
-              id="eventDate"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              className="py-1 px-2 mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-200 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="eventGroupLink"
-              className="block text-sm font-medium text-gray-300"
-            >
-              Link del grupo de whatsapp
-            </label>
-            <input
-              type="url"
-              id="eventGroupLink"
-              value={eventGroupLink}
-              onChange={(e) => setEventGroupLink(e.target.value)}
-              className="py-1 px-2 mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-200 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
+
+          <DatePicker
+            value={eventDate}
+            onChange={setEventDate}
+            label="Fecha del evento"
+            required
+          />
+
+          <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
-              onClick={onClose}
-              className="cursor-pointer px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 rounded-md hover:bg-gray-600"
+              onClick={handleClose}
+              className="px-6 py-3 rounded-2xl text-sm font-medium transition-all duration-300"
+              style={{
+                color: "var(--color-text-secondary)",
+                background: "var(--color-lavender-soft)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--color-lavender)";
+                e.currentTarget.style.transform = "scale(1.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--color-lavender-soft)";
+                e.currentTarget.style.transform = "scale(1)";
+              }}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="cursor-pointer px-4 py-2 text-sm font-medium text-white bg-purple-700 rounded-md hover:bg-purple-800"
+              className="px-6 py-3 rounded-2xl text-sm font-medium transition-all duration-300"
+              style={{
+                color: "var(--color-text-primary)",
+                background: "linear-gradient(135deg, #434E78 0%, #5a6aa8 100%)",
+                boxShadow: "var(--shadow-md)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.05)";
+                e.currentTarget.style.boxShadow = "var(--shadow-glow)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = "var(--shadow-md)";
+              }}
             >
               Guardar
             </button>
