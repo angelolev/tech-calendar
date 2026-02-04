@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DayCardProps, Registry } from "../../types";
+import { AvatarStack } from "../AvatarStack";
 
 // Array of soft dark color combinations based on #434E78
 const colorCombinations = [
@@ -86,7 +87,7 @@ export function DayCard({
           return (
             <div
               key={registry.id}
-              className="text-xs px-2 py-1.5 rounded-xl text-left truncate cursor-pointer transition-all duration-300"
+              className="text-xs px-2 py-1.5 rounded-xl text-left cursor-pointer transition-all duration-300"
               style={{
                 background: colors.bg,
                 color: colors.text,
@@ -107,7 +108,12 @@ export function DayCard({
                 e.currentTarget.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.05)";
               }}
             >
-              {registry.name}
+              <div className="truncate mb-1">{registry.name}</div>
+              {registry.interested_users && registry.interested_users.length > 0 && (
+                <div className="mt-1">
+                  <AvatarStack users={registry.interested_users} maxVisible={2} size="sm" />
+                </div>
+              )}
             </div>
           );
         })}

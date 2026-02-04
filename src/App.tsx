@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayCard, RegistryModal, RegistryDetailsModal } from "./components";
-import { Registry } from "./types";
+import { AuthButton } from "./components/AuthButton";
+import { Registry, Profile } from "./types";
 import { supabase } from "./lib/supabase";
+import { useAuth } from "./contexts/AuthContext";
+import { useEventActions } from "./hooks/useEventActions";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -16,10 +19,12 @@ function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [registries, setRegistries] = useState<Registry[]>([]);
-  const [selectedRegistry, setSelectedRegistry] = useState<Registry | null>(
-    null
-  );
+  const [selectedRegistry, setSelectedRegistry] = useState<Registry | null>(null);
+  const [editingRegistry, setEditingRegistry] = useState<Registry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { isAdmin } = useAuth();
+  const { createEvent, updateEvent } = useEventActions();
 
   // Fetch events from Supabase
   useEffect(() => {
@@ -28,7 +33,19 @@ function App() {
       try {
         const { data: events, error } = await supabase
           .from("events")
-          .select("*");
+          .select(`
+            *,
+            event_interests (
+              id,
+              profiles:user_id (
+                id,
+                full_name,
+                avatar_url,
+                email,
+                role
+              )
+            )
+          `);
 
         if (error) {
           console.error("Error fetching events:", error);
@@ -36,12 +53,19 @@ function App() {
         }
 
         if (events) {
-          // Convert Supabase date strings to Date objects (local timezone)
-          const formattedEvents: Registry[] = events.map((event) => ({
+          // Convert Supabase date strings to Date objects and extract interested users
+          const formattedEvents: Registry[] = events.map((event: any) => ({
             id: event.id,
             name: event.name,
             link: event.link,
+            whatsapp: event.whatsapp,
             date: parseISODateLocal(event.date),
+            created_by: event.created_by,
+            created_at: event.created_at,
+            updated_at: event.updated_at,
+            interested_users: event.event_interests
+              ?.map((interest: any) => interest.profiles)
+              .filter(Boolean) as Profile[] || [],
           }));
 
           setRegistries(formattedEvents);
@@ -56,45 +80,66 @@ function App() {
     fetchEvents();
   }, []);
 
-  // Save a new registry to Supabase
+  // Save a new registry
   const handleSaveRegistry = async (newRegistry: Omit<Registry, "id">) => {
+    if (!isAdmin) {
+      alert("Solo administradores pueden crear eventos");
+      return;
+    }
+
     try {
-      // Convert date to ISO string in local timezone (avoid UTC shift)
-      const year = newRegistry.date.getFullYear();
-      const month = String(newRegistry.date.getMonth() + 1).padStart(2, "0");
-      const day = String(newRegistry.date.getDate()).padStart(2, "0");
-      const dateISO = `${year}-${month}-${day}`;
-
-      const { data, error } = await supabase
-        .from("events")
-        .insert([
-          {
-            name: newRegistry.name,
-            link: newRegistry.link || undefined,
-            date: dateISO,
-          },
-        ])
-        .select();
-
-      if (error) {
-        console.error("Error saving event:", error);
-        return;
-      }
-
-      if (data && data[0]) {
+      const savedEvent = await createEvent(newRegistry);
+      if (savedEvent) {
         setRegistries([
           ...registries,
           {
-            id: data[0].id,
-            name: data[0].name,
-            link: data[0].link,
-            date: parseISODateLocal(data[0].date),
+            ...savedEvent,
+            date: parseISODateLocal(savedEvent.date),
+            interested_users: [],
           },
         ]);
+        setSelectedDate(null);
       }
     } catch (error) {
       console.error("Error saving event:", error);
+      alert("Error al crear el evento. Intenta de nuevo.");
     }
+  };
+
+  // Edit an existing registry
+  const handleEditRegistry = async (updatedRegistry: Omit<Registry, "id">) => {
+    if (!editingRegistry || !isAdmin) return;
+
+    try {
+      await updateEvent(editingRegistry.id, updatedRegistry);
+      setRegistries(
+        registries.map((r) =>
+          r.id === editingRegistry.id
+            ? {
+                ...r,
+                ...updatedRegistry,
+                date: updatedRegistry.date,
+              }
+            : r
+        )
+      );
+      setEditingRegistry(null);
+    } catch (error) {
+      console.error("Error updating event:", error);
+      alert("Error al actualizar el evento. Intenta de nuevo.");
+    }
+  };
+
+  // Delete a registry
+  const handleDeleteEvent = (registryId: string) => {
+    setRegistries(registries.filter((r) => r.id !== registryId));
+    setSelectedRegistry(null);
+  };
+
+  // Open edit modal
+  const handleOpenEditModal = (registry: Registry) => {
+    setEditingRegistry(registry);
+    setSelectedRegistry(null);
   };
 
   const getDaysInMonth = (date: Date) => {
@@ -138,6 +183,10 @@ function App() {
   };
 
   const handleDayClick = (date: Date) => {
+    if (!isAdmin) {
+      alert("Solo administradores pueden crear eventos");
+      return;
+    }
     setSelectedDate(date);
   };
 
@@ -172,6 +221,7 @@ function App() {
               Calendar
             </h2>
             <div className="flex items-center gap-6">
+              <AuthButton />
               <button
                 onClick={handlePrevMonth}
                 className="p-3 rounded-full transition-all duration-300"
@@ -275,10 +325,22 @@ function App() {
         />
       )}
 
+      {editingRegistry && (
+        <RegistryModal
+          selectedDate={editingRegistry.date}
+          onClose={() => setEditingRegistry(null)}
+          onSave={handleEditRegistry}
+          initialData={editingRegistry}
+          isEditMode={true}
+        />
+      )}
+
       {selectedRegistry && (
         <RegistryDetailsModal
           registry={selectedRegistry}
           onClose={() => setSelectedRegistry(null)}
+          onEdit={handleOpenEditModal}
+          onDelete={handleDeleteEvent}
         />
       )}
     </div>

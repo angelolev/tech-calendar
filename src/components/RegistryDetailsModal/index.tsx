@@ -1,17 +1,29 @@
 import { useState, useEffect } from "react";
-import { CalendarCheck, Link, X } from "lucide-react";
+import { CalendarCheck, Link, X, Edit, Trash2 } from "lucide-react";
 import { Registry } from "../../types";
+import { useAuth } from "../../contexts/AuthContext";
+import { useEventActions } from "../../hooks/useEventActions";
+import { useEventInterest } from "../../hooks/useEventInterest";
+import { InterestButton } from "../InterestButton";
+import { AvatarStack } from "../AvatarStack";
 
 interface RegistryDetailsModalProps {
   registry: Registry;
   onClose: () => void;
+  onEdit?: (registry: Registry) => void;
+  onDelete?: (registryId: string) => void;
 }
 
 export function RegistryDetailsModal({
   registry,
   onClose,
+  onEdit,
+  onDelete,
 }: RegistryDetailsModalProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const { isAdmin } = useAuth();
+  const { deleteEvent, isDeleting } = useEventActions();
+  const { interestedUsers } = useEventInterest(registry.id);
 
   useEffect(() => {
     setIsVisible(true);
@@ -20,6 +32,18 @@ export function RegistryDetailsModal({
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(onClose, 300);
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('¿Estás seguro de que deseas eliminar este evento?')) return;
+
+    try {
+      await deleteEvent(registry.id);
+      onDelete?.(registry.id);
+      handleClose();
+    } catch (error) {
+      alert('Error al eliminar el evento. Intenta de nuevo.');
+    }
   };
 
   return (
@@ -75,7 +99,7 @@ export function RegistryDetailsModal({
           {registry.name}
         </h2>
 
-        <div className="flex items-center gap-2 mb-8 pb-6" style={{ borderBottom: "1px solid rgba(67, 78, 120, 0.3)" }}>
+        <div className="flex items-center gap-2 mb-6 pb-6" style={{ borderBottom: "1px solid rgba(67, 78, 120, 0.3)" }}>
           <CalendarCheck size={18} style={{ color: "var(--color-text-secondary)" }} />
           <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
             {registry.date.toLocaleDateString("es", {
@@ -86,6 +110,26 @@ export function RegistryDetailsModal({
             })}
           </p>
         </div>
+
+        {/* Interest Button */}
+        <div className="mb-6">
+          <InterestButton eventId={registry.id} />
+        </div>
+
+        {/* Interested Users Section */}
+        {interestedUsers.length > 0 && (
+          <div className="mb-8 pb-6" style={{ borderBottom: "1px solid rgba(67, 78, 120, 0.3)" }}>
+            <h3
+              className="text-xs uppercase tracking-wider mb-3"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              Usuarios interesados ({interestedUsers.length})
+            </h3>
+            <div className="flex items-center gap-3">
+              <AvatarStack users={interestedUsers} maxVisible={10} size="md" />
+            </div>
+          </div>
+        )}
 
         <div className="space-y-6 mb-8">
           <h3
@@ -126,6 +170,57 @@ export function RegistryDetailsModal({
             </div>
           )}
         </div>
+
+        {/* Admin Actions */}
+        {isAdmin && (
+          <div className="flex gap-3 pt-4 mb-4 pb-4" style={{ borderTop: "1px solid rgba(67, 78, 120, 0.3)" }}>
+            <button
+              onClick={() => onEdit?.(registry)}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 font-medium"
+              style={{
+                background: "var(--color-lavender)",
+                color: "var(--color-text-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.05)";
+                e.currentTarget.style.boxShadow = "var(--shadow-glow)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <Edit size={16} />
+              <span>Editar</span>
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 font-medium"
+              style={{
+                background: "#d94a4a",
+                color: "var(--color-text-primary)",
+                opacity: isDeleting ? 0.5 : 1,
+                cursor: isDeleting ? 'not-allowed' : 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                if (!isDeleting) {
+                  e.currentTarget.style.transform = "scale(1.05)";
+                  e.currentTarget.style.boxShadow = "var(--shadow-glow)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isDeleting) {
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.boxShadow = "none";
+                }
+              }}
+            >
+              <Trash2 size={16} />
+              <span>{isDeleting ? 'Eliminando...' : 'Eliminar'}</span>
+            </button>
+          </div>
+        )}
 
         <div className="flex justify-end pt-4">
           <button

@@ -13,17 +13,21 @@ interface RegistryModalProps {
   selectedDate: Date;
   onClose: () => void;
   onSave: (registry: Omit<Registry, "id">) => void;
+  initialData?: Registry;
+  isEditMode?: boolean;
 }
 
 export function RegistryModal({
   selectedDate,
   onClose,
   onSave,
+  initialData,
+  isEditMode = false,
 }: RegistryModalProps) {
-  const [eventName, setEventName] = useState("");
-  const [eventLink, setEventLink] = useState("");
+  const [eventName, setEventName] = useState(initialData?.name || "");
+  const [eventLink, setEventLink] = useState(initialData?.link || "");
   const [eventDate, setEventDate] = useState(
-    formatDateToISOLocal(selectedDate)
+    initialData ? formatDateToISOLocal(initialData.date) : formatDateToISOLocal(selectedDate)
   );
   const [isVisible, setIsVisible] = useState(false);
 
@@ -97,7 +101,7 @@ export function RegistryModal({
             fontFamily: "'Source Serif 4', Georgia, serif",
           }}
         >
-          Agregar Evento
+          {isEditMode ? "Editar Evento" : "Agregar Evento"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
