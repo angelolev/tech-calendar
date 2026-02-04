@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayCard, RegistryModal, RegistryDetailsModal } from "./components";
-import { AuthButton } from "./components/AuthButton";
+import { DayCard, RegistryModal, RegistryDetailsModal, Navbar } from "./components";
 import { Registry, Profile } from "./types";
 import { supabase } from "./lib/supabase";
 import { useAuth } from "./contexts/AuthContext";
@@ -197,16 +196,18 @@ function App() {
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className="min-h-screen p-6 md:p-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 animate-fade-in-up">
-          <h1 className="text-4xl md:text-5xl font-light mb-3 tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
-            Calendario de Eventos Tech
-          </h1>
-          <p className="text-sm tracking-wide uppercase" style={{ color: 'var(--color-text-secondary)', letterSpacing: '0.15em' }}>
-            Coding Latam
-          </p>
-        </div>
+    <>
+      <Navbar />
+      <div className="min-h-screen p-6 md:p-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 animate-fade-in-up">
+            <h1 className="text-4xl md:text-5xl font-light mb-3 tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+              Calendario de Eventos Tech
+            </h1>
+            <p className="text-sm tracking-wide uppercase" style={{ color: 'var(--color-text-secondary)', letterSpacing: '0.15em' }}>
+              Coding Latam
+            </p>
+          </div>
 
         <div
           className="rounded-[32px] p-8 md:p-12 animate-scale-in backdrop-blur-sm"
@@ -221,7 +222,6 @@ function App() {
               Calendar
             </h2>
             <div className="flex items-center gap-6">
-              <AuthButton />
               <button
                 onClick={handlePrevMonth}
                 className="p-3 rounded-full transition-all duration-300"
@@ -315,6 +315,7 @@ function App() {
             </div>
           )}
         </div>
+        </div>
       </div>
 
       {selectedDate && (
@@ -343,7 +344,7 @@ function App() {
           onDelete={handleDeleteEvent}
         />
       )}
-    </div>
+    </>
   );
 }
 

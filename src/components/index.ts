@@ -5,3 +5,4 @@ export * from "./DatePicker";
 export * from "./AuthButton";
 export * from "./InterestButton";
 export * from "./AvatarStack";
+export * from "./Navbar";
