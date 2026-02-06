@@ -88,7 +88,7 @@ export function DatePicker({
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300"
+          className="absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 cursor-pointer"
           style={{
             color: "var(--color-text-secondary)",
           }}

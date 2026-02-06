@@ -44,7 +44,7 @@ export function DayCard({
       onMouseLeave={() => setIsHovered(false)}
       className="relative flex flex-col cursor-pointer group"
       style={{
-        height: "110px",
+        minHeight: "110px",
         padding: "12px",
         borderRadius: "20px",
         background: isCurrentMonth
@@ -81,7 +81,7 @@ export function DayCard({
         {date.getDate()}
       </span>
 
-      <div className="flex-1 overflow-y-auto space-y-1.5 relative z-10">
+      <div className="flex-1 space-y-1.5 relative z-10">
         {registries.map((registry, idx) => {
           const colors = getRegistryColor(registry.id.toString());
           return (

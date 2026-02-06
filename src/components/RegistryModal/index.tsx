@@ -77,7 +77,7 @@ export function RegistryModal({
       >
         <button
           onClick={handleClose}
-          className="absolute right-6 top-6 p-2 rounded-full transition-all duration-300"
+          className="absolute right-6 top-6 p-2 rounded-full transition-all duration-300 cursor-pointer"
           style={{
             color: "var(--color-text-primary)",
             background: "var(--color-lavender-soft)",
@@ -177,7 +177,7 @@ export function RegistryModal({
             <button
               type="button"
               onClick={handleClose}
-              className="px-6 py-3 rounded-2xl text-sm font-medium transition-all duration-300"
+              className="px-6 py-3 rounded-2xl text-sm font-medium transition-all duration-300 cursor-pointer"
               style={{
                 color: "var(--color-text-secondary)",
                 background: "var(--color-lavender-soft)",
@@ -195,7 +195,7 @@ export function RegistryModal({
             </button>
             <button
               type="submit"
-              className="px-6 py-3 rounded-2xl text-sm font-medium transition-all duration-300"
+              className="px-6 py-3 rounded-2xl text-sm font-medium transition-all duration-300 cursor-pointer"
               style={{
                 color: "var(--color-text-primary)",
                 background: "linear-gradient(135deg, #434E78 0%, #5a6aa8 100%)",

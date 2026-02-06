@@ -72,7 +72,7 @@ export function RegistryDetailsModal({
       >
         <button
           onClick={handleClose}
-          className="absolute right-6 top-6 p-2 rounded-full transition-all duration-300"
+          className="absolute right-6 top-6 p-2 rounded-full transition-all duration-300 cursor-pointer"
           style={{
             color: "var(--color-text-primary)",
             background: "var(--color-lavender-soft)",
@@ -148,7 +148,7 @@ export function RegistryDetailsModal({
                 href={registry.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300"
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 cursor-pointer"
                 style={{
                   color: "var(--color-text-primary)",
                   background: "var(--color-blue-mist)",
@@ -176,7 +176,7 @@ export function RegistryDetailsModal({
           <div className="flex gap-3 pt-4 mb-4 pb-4" style={{ borderTop: "1px solid rgba(67, 78, 120, 0.3)" }}>
             <button
               onClick={() => onEdit?.(registry)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 font-medium"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 font-medium cursor-pointer"
               style={{
                 background: "var(--color-lavender)",
                 color: "var(--color-text-primary)",
@@ -196,7 +196,7 @@ export function RegistryDetailsModal({
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 font-medium"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all duration-300 font-medium cursor-pointer"
               style={{
                 background: "#d94a4a",
                 color: "var(--color-text-primary)",
@@ -225,7 +225,7 @@ export function RegistryDetailsModal({
         <div className="flex justify-end pt-4">
           <button
             onClick={handleClose}
-            className="px-8 py-3 rounded-2xl text-sm font-medium transition-all duration-300"
+            className="px-8 py-3 rounded-2xl text-sm font-medium transition-all duration-300 cursor-pointer"
             style={{
               color: "var(--color-text-primary)",
               background: "linear-gradient(135deg, #434E78 0%, #5a6aa8 100%)",
