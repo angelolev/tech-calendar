@@ -7,7 +7,7 @@ export function AuthButton() {
   if (isLoading) {
     return (
       <button
-        className="px-4 py-2 rounded-2xl"
+        className="px-4 py-2 rounded-2xl cursor-pointer"
         disabled
         style={{
           background: 'var(--color-lavender-soft)',
@@ -24,7 +24,7 @@ export function AuthButton() {
     return (
       <button
         onClick={signInWithGoogle}
-        className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300"
+        className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300 cursor-pointer"
         style={{
           background: 'var(--color-lavender)',
           color: 'var(--color-text-primary)',
@@ -82,7 +82,7 @@ export function AuthButton() {
       </div>
       <button
         onClick={signOut}
-        className="p-2 rounded-full transition-all duration-300"
+        className="p-2 rounded-full transition-all duration-300 cursor-pointer"
         style={{
           background: 'var(--color-lavender-soft)',
           color: 'var(--color-text-primary)'

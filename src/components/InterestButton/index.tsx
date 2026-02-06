@@ -27,7 +27,7 @@ export function InterestButton({ eventId }: InterestButtonProps) {
     <button
       onClick={handleClick}
       disabled={!user || isLoading}
-      className="flex items-center gap-2 px-6 py-3 rounded-2xl transition-all duration-300 font-medium"
+      className="flex items-center gap-2 px-6 py-3 rounded-2xl transition-all duration-300 font-medium cursor-pointer"
       style={{
         background: isInterested ? 'var(--color-lavender)' : 'var(--color-lavender-soft)',
         color: 'var(--color-text-primary)',

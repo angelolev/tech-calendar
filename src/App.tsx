@@ -224,7 +224,7 @@ function App() {
             <div className="flex items-center gap-6">
               <button
                 onClick={handlePrevMonth}
-                className="p-3 rounded-full transition-all duration-300"
+                className="p-3 rounded-full transition-all duration-300 cursor-pointer"
                 style={{
                   color: 'var(--color-text-primary)',
                   background: 'var(--color-lavender-soft)'
@@ -250,7 +250,7 @@ function App() {
               </h3>
               <button
                 onClick={handleNextMonth}
-                className="p-3 rounded-full transition-all duration-300"
+                className="p-3 rounded-full transition-all duration-300 cursor-pointer"
                 style={{
                   color: 'var(--color-text-primary)',
                   background: 'var(--color-lavender-soft)'

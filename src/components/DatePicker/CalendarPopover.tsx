@@ -126,7 +126,7 @@ export function CalendarPopover({
           <button
             type="button"
             onClick={handlePrevMonth}
-            className="p-2 rounded-full transition-all duration-300"
+            className="p-2 rounded-full transition-all duration-300 cursor-pointer"
             style={{
               color: "var(--color-text-primary)",
               background: "var(--color-lavender-soft)",
@@ -161,7 +161,7 @@ export function CalendarPopover({
           <button
             type="button"
             onClick={handleNextMonth}
-            className="p-2 rounded-full transition-all duration-300"
+            className="p-2 rounded-full transition-all duration-300 cursor-pointer"
             style={{
               color: "var(--color-text-primary)",
               background: "var(--color-lavender-soft)",
